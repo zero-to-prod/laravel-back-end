@@ -2,71 +2,53 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Concerns\ApiController;
-use App\Http\Controllers\Controller;
-use App\Traits\ForApiController;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\Routing\ResponseFactory;
-use Illuminate\Http\Response;
+use App\Http\Controllers\ApiController;
+use App\Http\Resources\V1\ParagraphsResource;
+use Faker\Factory as Faker;
+use Faker\Generator;
 use Tests\Feature\Api\ParagraphsTest;
 
-class ParagraphsController extends Controller implements ApiController
+class ParagraphsController extends ApiController
 {
-    use ForApiController;
-
-    private const TYPE = 'paragraphs';
+    /*
+     * Properties used to build the response.
+     *
+     * Note: all public properties are passed to the resource.
+     */
+    public array $paragraphs;
+    protected Generator $faker;
 
     /**
-     * @return Application|ResponseFactory|Response
-     * @see ParagraphsTest::invoke()
+     * Called from the route.
+     *
+     * @see ParagraphsTest
      */
-    public function __invoke()
+    public function __invoke(): ParagraphsResource
     {
-        return response($this->getResponse(), 200);
+        return new ParagraphsResource($this);
     }
 
-    public function getResponse(): array
+    /**
+     * Runs on every request.
+     */
+    public function handle(): void
     {
-        /*
-         * The shape of the response is structured from the json:api spec
-         * https://jsonapi.org/
-         */
-        return [
-            "links" => [
-                'self' => $this->getSelfUrl()
-            ],
-            "data"  => [
-                'type'       => $this->getType(),
-                'id'         => $this->getId(),
-                'attributes' => $this->getAttributes()
-            ]
-        ];
-    }
-
-    public function getId(): string
-    {
-        return $this->getNumberOfParagraphsFromRequest();
-    }
-
-    private function getNumberOfParagraphsFromRequest(): int
-    {
-        return (int)$this->request->query('number_of_paragraphs');
-    }
-
-    public function getAttributes(): array
-    {
-        return [
-            'paragraphs' => $this->getParagraphs()
-        ];
+        $this->faker      = Faker::create(); // A tool to generate fake data
+        $this->paragraphs = $this->getParagraphs();
     }
 
     private function getParagraphs(): array
     {
         $paragraphs = [];
-        for ($i = 0; $i < $this->getNumberOfParagraphsFromRequest(); $i++) {
+        for ($i = 0; $i < $this->getNumberOfParagraphsFromQueryString(); $i++) {
             $paragraphs[] = $this->faker->paragraph;
         }
 
         return $paragraphs;
+    }
+
+    private function getNumberOfParagraphsFromQueryString(): int
+    {
+        return (int)$this->request->query('number_of_paragraphs');
     }
 }
