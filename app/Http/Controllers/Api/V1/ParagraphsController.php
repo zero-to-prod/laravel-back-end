@@ -27,7 +27,7 @@ class ParagraphsController extends Controller
         $this->request    = $request;
         $this->faker      = Faker::create(); // A tool to generate fake data
         $this->paragraphs = $this->getParagraphs();
-        $this->id         = (string)count($this->paragraphs);
+        $this->id         = $this->getId();
     }
 
     /**
@@ -53,5 +53,13 @@ class ParagraphsController extends Controller
     private function getNumberOfParagraphsFromQueryString(): int
     {
         return (int)$this->request->query('number_of_paragraphs');
+    }
+
+    /**
+     * @return string
+     */
+    private function getId(): string
+    {
+        return (string)count($this->paragraphs);
     }
 }
