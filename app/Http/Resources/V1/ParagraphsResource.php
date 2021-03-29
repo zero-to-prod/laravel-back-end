@@ -5,10 +5,13 @@ namespace App\Http\Resources\V1;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed paragraphs
+ * @property mixed id
+ * @property mixed type
+ */
 class ParagraphsResource extends JsonResource
 {
-    private string $type = 'paragraphs';
-
     /**
      * Transform the resource into an array.
      *
@@ -26,7 +29,7 @@ class ParagraphsResource extends JsonResource
                 'self' => $request->fullUrl()
             ],
             'data'  => [
-                'id'         => (string)count($this->paragraphs),
+                'id'         => $this->id,
                 'type'       => $this->type,
                 'attributes' => [
                     'paragraphs' => $this->paragraphs

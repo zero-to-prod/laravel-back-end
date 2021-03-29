@@ -2,21 +2,33 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\ApiController;
+use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\ParagraphsResource;
 use Faker\Factory as Faker;
 use Faker\Generator;
+use Illuminate\Http\Request;
 use Tests\Feature\Api\ParagraphsTest;
 
-class ParagraphsController extends ApiController
+class ParagraphsController extends Controller
 {
     /*
      * Properties used to build the response.
      *
      * Note: all public properties are passed to the resource.
      */
+    public string $id;
+    public string $type = 'paragraphs';
     public array $paragraphs;
+    protected Request $request;
     protected Generator $faker;
+
+    public function __construct(Request $request)
+    {
+        $this->request    = $request;
+        $this->faker      = Faker::create(); // A tool to generate fake data
+        $this->paragraphs = $this->getParagraphs();
+        $this->id         = (string)count($this->paragraphs);
+    }
 
     /**
      * Called from the route.
@@ -26,15 +38,6 @@ class ParagraphsController extends ApiController
     public function __invoke(): ParagraphsResource
     {
         return new ParagraphsResource($this);
-    }
-
-    /**
-     * Runs on every request.
-     */
-    public function handle(): void
-    {
-        $this->faker      = Faker::create(); // A tool to generate fake data
-        $this->paragraphs = $this->getParagraphs();
     }
 
     private function getParagraphs(): array
